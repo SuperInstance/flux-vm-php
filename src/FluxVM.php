@@ -2036,6 +2036,11 @@ final class FluxVM
         $this->gp[$reg] = $value;
     }
 
+    public function halt(): void
+    {
+        $this->state = VMState::Halted;
+    }
+
     public function getPC(): int
     {
         return $this->pc;
