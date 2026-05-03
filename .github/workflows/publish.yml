@@ -1,0 +1,33 @@
+name: Publish to Packagist
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Validate composer.json
+        run: |
+          composer validate --strict
+
+      - name: Install dependencies
+        run: |
+          composer install --no-dev --optimize-autoloader
+
+      - name: Publish to Packagist
+        uses: packagist/packagist-action@v2
+        with:
+          api-token: ${{ secrets.PACKAGIST_API_TOKEN }}
+          repo-url: https://packagist.org
