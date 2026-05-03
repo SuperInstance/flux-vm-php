@@ -1,0 +1,25 @@
+{
+    "name": "superinstance/flux-vm",
+    "description": "Pure PHP FLUX ISA v3.0 virtual machine — register-based bytecode VM for multi-agent fleet coordination",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SuperInstance\\FluxVM\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SuperInstance\\FluxVM\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}
