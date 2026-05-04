@@ -19,18 +19,12 @@ jobs:
           php-version: '8.2'
           extensions: mbstring, zip
 
-      - name: Install Composer
-        run: composer install --no-dev --optimize-autoloader
-
-      - name: Validate
+      - name: Validate composer.json
         run: composer validate --strict
 
       - name: Publish to Packagist
         run: |
-          # Update Packagist via API using composer command
-          # Note: packagist-action doesn't exist, using direct API approach
-          PACKAGIST_TOKEN="${{ secrets.PACKAGIST_API_TOKEN }}"
-          API_URL="https://packagist.org/api/github"
-          curl -s -X POST \
-            -H "Authorization: Bearer $PACKAGIST_TOKEN" \
-            "https://packagist.org/api/github?repository=SuperInstance/flux-vm-php"
+          curl -XPOST \
+            'https://packagist.org/api/update-package?username=superinstance&apiToken=${{ secrets.PACKAGIST_API_TOKEN }}' \
+            -H 'content-type:application/json' \
+            -d '{"repository":{"url":"https://github.com/SuperInstance/flux-vm-php"}}'
