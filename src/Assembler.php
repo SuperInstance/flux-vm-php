@@ -345,27 +345,30 @@ final class Assembler
         $target = $args[1];
 
         $offset = isset($this->labels[$target])
-            ? $this->labels[$target] - $this->pc - 4
+            ? $this->labels[$target] - $this->pc - 5
             : $this->parseImmediate($target);
 
-        $this->output[] = chr($op) . chr(2) . chr($offset & 0xFF) . chr(($offset >> 8) & 0xFF);
-        $this->pc += 4;
+        // Format G with explicit length byte: [opcode][5][Rd][offset_lo][offset_hi]
+        $this->output[] = chr($op) . chr(5) . chr($reg) . chr($offset & 0xFF) . chr(($offset >> 8) & 0xFF);
+        $this->pc += 5;
     }
 
     private function encodeCallG(int $op, array $args, int $lineNum): void
     {
         if (count($args) < 1) throw new \Exception("Call requires function index at line $lineNum");
         $func = $this->parseImmediate($args[0]);
-        $this->output[] = chr($op) . chr(2) . chr($func & 0xFF) . chr(($func >> 8) & 0xFF);
-        $this->pc += 4;
+        // Format G: [opcode][5][func_lo][func_hi][flags]
+        $this->output[] = chr($op) . chr(5) . chr($func & 0xFF) . chr(($func >> 8) & 0xFF) . chr(0);
+        $this->pc += 5;
     }
 
     private function encodeCallIndirectG(int $op, array $args, int $lineNum): void
     {
         if (count($args) < 1) throw new \Exception("CallIndirect requires register at line $lineNum");
         $reg = $this->parseRegister($args[0]);
-        $this->output[] = chr($op) . chr(1) . chr($reg);
-        $this->pc += 3;
+        // Format G: [opcode][4][reg][pad][pad]
+        $this->output[] = chr($op) . chr(4) . chr($reg) . chr(0) . chr(0);
+        $this->pc += 5;
     }
 
     private function encodeA2AG(int $op, array $args, int $lineNum): void
@@ -373,16 +376,18 @@ final class Assembler
         if (count($args) < 2) throw new \Exception("A2A op requires agent_id and register at line $lineNum");
         $agentId = $this->parseImmediate($args[0]);
         $reg = $this->parseRegister($args[1]);
-        $this->output[] = chr($op) . chr(2) . chr($agentId & 0xFF) . chr($reg);
-        $this->pc += 4;
+        // Format G: [opcode][5][agent_id][reg][pad]
+        $this->output[] = chr($op) . chr(5) . chr($agentId & 0xFF) . chr($reg) . chr(0);
+        $this->pc += 5;
     }
 
     private function encodeA2ASimpleG(int $op, array $args, int $lineNum): void
     {
         if (count($args) < 1) throw new \Exception("A2A op requires register at line $lineNum");
         $val = $this->parseRegister($args[0]);
-        $this->output[] = chr($op) . chr(1) . chr($val);
-        $this->pc += 3;
+        // Format G: [opcode][4][reg][pad][pad]
+        $this->output[] = chr($op) . chr(4) . chr($val) . chr(0) . chr(0);
+        $this->pc += 5;
     }
 
     private function advancePC(int $op): void
