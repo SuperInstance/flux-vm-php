@@ -17,17 +17,20 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          extensions: mbstring, zip
 
-      - name: Validate composer.json
-        run: |
-          composer validate --strict
+      - name: Install Composer
+        run: composer install --no-dev --optimize-autoloader
 
-      - name: Install dependencies
-        run: |
-          composer install --no-dev --optimize-autoloader
+      - name: Validate
+        run: composer validate --strict
 
       - name: Publish to Packagist
-        uses: packagist/packagist-action@v2
-        with:
-          api-token: ${{ secrets.PACKAGIST_API_TOKEN }}
-          repo-url: https://packagist.org
+        run: |
+          # Update Packagist via API using composer command
+          # Note: packagist-action doesn't exist, using direct API approach
+          PACKAGIST_TOKEN="${{ secrets.PACKAGIST_API_TOKEN }}"
+          API_URL="https://packagist.org/api/github"
+          curl -s -X POST \
+            -H "Authorization: Bearer $PACKAGIST_TOKEN" \
+            "https://packagist.org/api/github?repository=SuperInstance/flux-vm-php"
